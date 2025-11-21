@@ -1,4 +1,3 @@
-``` 
 # ClassTrack: Solusi Terpusat Pengelolaan Jadwal Perkuliahan Program Studi Informatika
 
 ## 🚀 Deskripsi Proyek
@@ -39,5 +38,3 @@ Struktur folder proyek dibagi menjadi dua: `backend` dan `aplikasi expo` (untuk 
 
 ## 📝 Rencana Pengembangan
 Pengembangan aplikasi ClassTrack akan berkolaborasi menggunakan **Github**, di mana setiap anggota tim (Khairunissa, Gilbert Nandy Satria, dan Muhamad Rafas) diharapkan berkontribusi sesuai dengan pembagian *jobdesk* masing-masing.
-
-```
