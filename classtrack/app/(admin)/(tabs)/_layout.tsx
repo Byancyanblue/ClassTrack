@@ -32,7 +32,7 @@ export default function AdminTabs() {
       }}
     >
       <Tabs.Screen
-        name="dashboardAdmin"
+        name="dashboard-admin"
         options={{
           title: "Dashboard",
           tabBarIcon: ({ color, size }) => (

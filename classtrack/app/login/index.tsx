@@ -30,7 +30,7 @@ export default function LoginPage() {
 
     // Routing sesuai peran
     if (role === "admin")
-      router.replace("/(admin)/(tabs)/dashboardAdmin");
+      router.replace("/(admin)/(tabs)/dashboard-admin");
     else if (role === "dosen")
       router.replace("/(dosen)/(tabs)/dashboardDosen");
     else

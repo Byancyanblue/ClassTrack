@@ -10,6 +10,9 @@ import sesiRoutes from "./routes/sesiRoutes.js";
 import jadwalRoutes from "./routes/jadwalRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
+import dashboardAdminRoutes from "./routes/admin/dashboardAdminRoutes.js";
+
+
 
 const app = express();
 app.use(cors());
@@ -31,6 +34,9 @@ app.use("/api/ruangan", ruanganRoutes);
 app.use("/api/sesi", sesiRoutes);
 app.use("/api/jadwal", jadwalRoutes);
 app.use("/api/log", logRoutes);
+
+//ROUTES ADMIN
+app.use("/api/admin/dashboard-admin", dashboardAdminRoutes);
 
 // GLOBAL ERROR HANDLER (opsional tapi sangat direkomendasikan)
 app.use((err, req, res, next) => {
