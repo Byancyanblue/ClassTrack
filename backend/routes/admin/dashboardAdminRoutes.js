@@ -5,56 +5,71 @@ const router = express.Router();
 
 router.get("/stats", async (req, res) => {
   try {
-    // Hitung statistik
     const [[ruang]] = await db.query("SELECT COUNT(*) AS total FROM ruangan");
     const [[jadwal]] = await db.query("SELECT COUNT(*) AS total FROM jadwal_kuliah");
     const [[dosen]] = await db.query("SELECT COUNT(*) AS total FROM dosen");
     const [[makul]] = await db.query("SELECT COUNT(*) AS total FROM makul");
 
-    // Ambil log jadwal
     const [logs] = await db.query(`
-      SELECT id, id_jadwal, aksi, waktu
+      SELECT 
+        log_jadwal.id,
+        log_jadwal.id_jadwal,
+        log_jadwal.aksi,
+        log_jadwal.waktu,
+        makul.nama_mk
       FROM log_jadwal
-      ORDER BY waktu DESC
+      JOIN jadwal_kuliah ON log_jadwal.id_jadwal = jadwal_kuliah.id
+      JOIN makul ON jadwal_kuliah.id_makul = makul.id
+      ORDER BY log_jadwal.waktu DESC
       LIMIT 10
     `);
 
-    // Format supaya manusiawi
-    const formatMessage = (row) => {
-      let text = "";
-
-      switch (row.aksi.toLowerCase()) {
-        case "update":
-          text = `Jadwal #${row.id_jadwal} telah diperbarui.`;
-          break;
-        case "delete":
-          text = `Jadwal #${row.id_jadwal} telah dihapus.`;
-          break;
-        case "online":
-          text = `Jadwal #${row.id_jadwal} diubah menjadi Online.`;
-          break;
-        case "offline":
-          text = `Jadwal #${row.id_jadwal} diubah menjadi Tatap Muka.`;
-          break;
-        default:
-          text = `Perubahan pada jadwal #${row.id_jadwal}: ${row.aksi}`;
-      }
-
-      return {
-        id: row.id,
-        message: text,
-        time: row.waktu,
-      };
-    };
-
     const notifikasi =
       logs.length > 0
-        ? logs.map((item) => formatMessage(item))
+        ? logs.map((row) => {
+            let message = "";
+            const mk = row.nama_mk;
+
+            switch (row.aksi.toLowerCase()) {
+              case "update":
+                message = `${mk} (Jadwal #${row.id_jadwal}) telah diperbarui.`;
+                break;
+
+              case "delete":
+                message = `${mk} (Jadwal #${row.id_jadwal}) telah dihapus.`;
+                break;
+
+              case "online":
+                message = `${mk} diubah menjadi mode Online.`;
+                break;
+
+              case "offline":
+                message = `${mk} diubah menjadi Tatap Muka.`;
+                break;
+
+              case "diundur":
+                message = `${mk} mengalami perubahan jadwal (diundur).`;
+                break;
+
+              case "sesuai jadwal":
+                message = `${mk} kembali mengikuti jadwal semula.`;
+                break;
+
+              default:
+                message = `Perubahan pada ${mk}: ${row.aksi}`;
+            }
+
+            return {
+              id: row.id,
+              aksi: message,
+              waktu: row.waktu,
+            };
+          })
         : [
             {
               id: 0,
-              message: "Belum ada perubahan jadwal.",
-              time: null,
+              aksi: "Belum ada perubahan jadwal.",
+              waktu: null,
             },
           ];
 
@@ -65,11 +80,10 @@ router.get("/stats", async (req, res) => {
       mataKuliah: makul.total,
       notifikasi,
     });
-
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error fetching stats", error });
   }
 });
+
 
 export default router;

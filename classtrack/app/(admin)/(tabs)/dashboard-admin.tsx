@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView  } from "react-native";
 
   const API_URL = "http://192.168.164.243:3000/api";
 
@@ -22,17 +22,39 @@ export default function DashboardAdmin() {
   useEffect(() => {
     fetch(`${API_URL}/admin/dashboard-admin/stats`)
       .then((res) => res.json())
-      .then((data) => setStats(data))
-      .catch((err) => console.log("Error:", err));
-
-    fetch(`${API_URL}/dashboard-admin/notifikasi`)
-      .then((res) => res.json())
-      .then((data) => setNotifikasi(data.data)) // backend kamu return { data: [...] }
-      .catch((err) => console.log("Error:", err));
+      .then((data) => {
+        setStats(data);
+        setNotifikasi(data.notifikasi);
+      });
   }, []);
 
+  const getBadgeStyle = (aksi: string) => {
+    const lower = aksi.toLowerCase();
+
+    if (lower.includes("online"))
+      return { bg: "#2ED573", text: "Online" };
+
+    if (lower.includes("offline"))
+      return { bg: "#FF4757", text: "Offline" };
+
+    if (lower.includes("hapus") || lower.includes("delete"))
+      return { bg: "#A4B0BE", text: "Deleted" };
+
+    if (lower.includes("diundur"))
+      return { bg: "#FFA502", text: "Diundur" };
+
+    if (lower.includes("sesuai jadwal"))
+      return { bg: "#8854D0", text: "Normal" };
+
+    if (lower.includes("perbarui") || lower.includes("update"))
+      return { bg: "#1E90FF", text: "Updated" };
+
+    return { bg: "#57606F", text: "Info" };
+  };
+
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Welcome, Admin</Text>
 
       {/* Statistik */}
@@ -67,26 +89,53 @@ export default function DashboardAdmin() {
         {notifikasi.length === 0 ? (
           <Text style={{ color: "gray" }}>Belum ada perubahan terbaru.</Text>
         ) : (
-          notifikasi.map((item) => (
-            <View
-              key={item.id}
-              style={{
-                backgroundColor: "white",
-                padding: 12,
-                borderRadius: 10,
-                marginBottom: 10,
-                elevation: 2,
-              }}
-            >
-              <Text style={{ fontSize: 14 }}>{item.aksi}</Text>
-              <Text style={{ fontSize: 12, color: "gray", marginTop: 4 }}>
-                {new Date(item.waktu).toLocaleString()}
-              </Text>
-            </View>
-          ))
+          notifikasi.map((item) => {
+            const badge = getBadgeStyle(item.aksi);
+
+            return (
+              <View
+                key={item.id}
+                style={{
+                  backgroundColor: "white",
+                  padding: 14,
+                  borderRadius: 14,
+                  marginBottom: 12,
+                  elevation: 3,
+                  borderLeftWidth: 6,
+                  borderLeftColor: badge.bg,
+                }}
+              >
+                {/* Badge */}
+                <View
+                  style={{
+                    alignSelf: "flex-start",
+                    backgroundColor: badge.bg,
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    borderRadius: 8,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text style={{ fontSize: 12, color: "white", fontWeight: "bold" }}>
+                    {badge.text}
+                  </Text>
+                </View>
+
+                {/* Aksi */}
+                <Text style={{ fontSize: 14, fontWeight: "600" }}>{item.aksi}</Text>
+
+                {/* Waktu */}
+                <Text style={{ fontSize: 12, color: "gray", marginTop: 6 }}>
+                  {item.waktu
+                    ? new Date(item.waktu).toLocaleString()
+                    : "-"}
+                </Text>
+              </View>
+            );
+          })
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
