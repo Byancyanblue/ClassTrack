@@ -11,8 +11,7 @@ import jadwalRoutes from "./routes/jadwalRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import dashboardAdminRoutes from "./routes/admin/dashboardAdminRoutes.js";
-
-
+import kalendarAdminRoutes from "./routes/admin/kalendarAdminRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -37,6 +36,7 @@ app.use("/api/log", logRoutes);
 
 //ROUTES ADMIN
 app.use("/api/admin/dashboard-admin", dashboardAdminRoutes);
+app.use("/api/admin/kalendar-admin", kalendarAdminRoutes);
 
 // GLOBAL ERROR HANDLER (opsional tapi sangat direkomendasikan)
 app.use((err, req, res, next) => {

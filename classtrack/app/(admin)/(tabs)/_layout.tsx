@@ -42,21 +42,21 @@ export default function AdminTabs() {
       />
 
       <Tabs.Screen
-        name="laporanAdmin"
+        name="kalendar-admin"
         options={{
-          title: "Laporan",
+          title: "Kalendar Akademik",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text-outline" size={size} color={color} />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="profileAdmin"
+        name="kelola-data"
         options={{
-          title: "Profil",
+          title: "Kelola Data",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
