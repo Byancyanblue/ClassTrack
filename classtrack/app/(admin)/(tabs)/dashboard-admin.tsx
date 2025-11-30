@@ -81,13 +81,15 @@ export default function DashboardAdmin() {
       </View>
 
       {/* Notifikasi */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
+      <View style={{ marginTop: 24 }}>
+        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
           Notifikasi Perubahan
         </Text>
 
         {notifikasi.length === 0 ? (
-          <Text style={{ color: "gray" }}>Belum ada perubahan terbaru.</Text>
+          <Text style={{ color: "gray", marginTop: 10 }}>
+            Belum ada perubahan terbaru.
+          </Text>
         ) : (
           notifikasi.map((item) => {
             const badge = getBadgeStyle(item.aksi);
@@ -96,40 +98,53 @@ export default function DashboardAdmin() {
               <View
                 key={item.id}
                 style={{
+                  flexDirection: "row",
+                  paddingVertical: 14,
+                  paddingHorizontal: 12,
                   backgroundColor: "white",
-                  padding: 14,
-                  borderRadius: 14,
-                  marginBottom: 12,
-                  elevation: 3,
-                  borderLeftWidth: 6,
+                  borderRadius: 12,
+                  marginBottom: 10,
+                  elevation: 2,
+                  borderLeftWidth: 5,
                   borderLeftColor: badge.bg,
+                  gap: 12,
+                  alignItems: "flex-start",
                 }}
               >
                 {/* Badge */}
                 <View
                   style={{
-                    alignSelf: "flex-start",
                     backgroundColor: badge.bg,
                     paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    borderRadius: 8,
-                    marginBottom: 8,
+                    paddingVertical: 5,
+                    borderRadius: 6,
+                    minWidth: 70,
+                    alignItems: "center",
                   }}
                 >
-                  <Text style={{ fontSize: 12, color: "white", fontWeight: "bold" }}>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: "700",
+                    }}
+                  >
                     {badge.text}
                   </Text>
                 </View>
 
-                {/* Aksi */}
-                <Text style={{ fontSize: 14, fontWeight: "600" }}>{item.aksi}</Text>
+                {/* Isi Notifikasi */}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "600" }}>
+                    {item.aksi}
+                  </Text>
 
-                {/* Waktu */}
-                <Text style={{ fontSize: 12, color: "gray", marginTop: 6 }}>
-                  {item.waktu
-                    ? new Date(item.waktu).toLocaleString()
-                    : "-"}
-                </Text>
+                  <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                    {item.waktu
+                      ? new Date(item.waktu).toLocaleString()
+                      : "-"}
+                  </Text>
+                </View>
               </View>
             );
           })

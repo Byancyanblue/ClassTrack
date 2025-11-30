@@ -60,6 +60,16 @@ export default function AdminTabs() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="menu"
+        options={{
+          title: "Lainnya",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
