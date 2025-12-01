@@ -14,6 +14,7 @@ import dashboardAdminRoutes from "./routes/admin/dashboardAdminRoutes.js";
 import kalendarAdminRoutes from "./routes/admin/kalendarAdminRoutes.js";
 import logAdminRoutes from "./routes/admin/log.js";
 import userAdminRoutes from "./routes/admin/users.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,9 @@ app.use("/api/ruangan", ruanganRoutes);
 app.use("/api/sesi", sesiRoutes);
 app.use("/api/jadwal", jadwalRoutes);
 app.use("/api/log", logRoutes);
+
+//LOGIN
+app.use("/api", authRoutes);
 
 //ROUTES ADMIN
 app.use("/api/admin/dashboard-admin", dashboardAdminRoutes);

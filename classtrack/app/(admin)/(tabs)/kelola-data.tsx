@@ -16,7 +16,7 @@ import ModalRuangan from "../../../components/modals/modalRuangan";
 import ModalSesi from "../../../components/modals/modalSesi";
 import ModalJadwal from "../../../components/modals/modalJadwal";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
 
 
 // Enable Animation for Android

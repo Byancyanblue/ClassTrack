@@ -1,4 +1,3 @@
-// app/login/index.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -11,30 +10,54 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "../../store/useAuth";
 
+const API_URL = "http://192.168.60.243:3000/api";
+
 export default function LoginPage() {
   const router = useRouter();
   const login = useAuth((s) => s.login);
 
   const [username, setUsername] = useState("");
-  const [role, setRole] = useState<"admin" | "dosen" | "mahasiswa">("mahasiswa");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert("Error", "Harap isi semua kolom!");
-      return;
+      return Alert.alert("Error", "Harap isi semua kolom!");
     }
 
-    // Simpan user ke store Zustand
-    login({ username, role });
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Routing sesuai peran
-    if (role === "admin")
-      router.replace("/(admin)/(tabs)/dashboard-admin");
-    else if (role === "dosen")
-      router.replace("/(dosen)/(tabs)/dashboardDosen");
-    else
-      router.replace("/(mahasiswa)/(tabs)/dashboardMahasiswa");
+      const data = await res.json();
+
+      if (!data.success) {
+        return Alert.alert("Login gagal", data.message);
+      }
+
+      // Simpan user ke Zustand
+      login(data.user);
+
+      // Routing sesuai role dari backend
+      switch (data.user.role) {
+        case "admin":
+          router.replace("/(admin)/(tabs)/dashboard-admin");
+          break;
+        case "dosen":
+          router.replace("/(dosen)/(tabs)/dashboardDosen");
+          break;
+        case "mahasiswa":
+          router.replace("/(mahasiswa)/(tabs)/dashboardMahasiswa");
+          break;
+        default:
+          Alert.alert("Error", "Role tidak dikenal!");
+      }
+
+    } catch (error) {
+      Alert.alert("Error", "Gagal terhubung ke server");
+    }
   };
 
   return (
@@ -53,15 +76,6 @@ export default function LoginPage() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Role (admin/dosen/mahasiswa)"
-        value={role}
-        onChangeText={(value) =>
-          setRole(value as "admin" | "dosen" | "mahasiswa")
-        }
         style={styles.input}
       />
 
