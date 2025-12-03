@@ -8,9 +8,16 @@ import {
   StyleSheet,
 } from "react-native";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
 
-export default function ModalSesi({ close, mode, data, refresh }) {
+interface ModalSesiProps {
+  close: () => void;
+  mode: "add" | "edit";
+  data?: any;     // boleh diganti lebih spesifik
+  refresh: () => void;
+}
+
+export default function ModalSesi({ close, mode, data, refresh } : ModalSesiProps) {
   const [nama, setNama] = useState(data?.nama_sesi || "");
   const [mulai, setMulai] = useState(data?.jam_mulai || "");
   const [selesai, setSelesai] = useState(data?.jam_selesai || "");

@@ -18,13 +18,15 @@ import ModalJadwal from "../../../components/modals/modalJadwal";
 
 const API_URL = "http://192.168.60.243:3000/api";
 
-
-// Enable Animation for Android
+// Enable layout animation on Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+type ModeType = "add" | "edit";
+
 export default function KelolaDataScreen() {
+  // Accordion states
   const [sections, setSections] = useState({
     dosen: false,
     makul: false,
@@ -38,53 +40,67 @@ export default function KelolaDataScreen() {
     setSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Data States
-  const [dosen, setDosen] = useState([]);
-  const [makul, setMakul] = useState([]);
-  const [ruangan, setRuangan] = useState([]);
-  const [sesi, setSesi] = useState([]);
-  const [jadwal, setJadwal] = useState([]);
+  // Data states
+  const [dosen, setDosen] = useState<any[]>([]);
+  const [makul, setMakul] = useState<any[]>([]);
+  const [ruangan, setRuangan] = useState<any[]>([]);
+  const [sesi, setSesi] = useState<any[]>([]);
+  const [jadwal, setJadwal] = useState<any[]>([]);
 
-  // Modal State
-  const [modal, setModal] = useState({ show: false, type: "", mode: "add", data: null });
+  // Modal handling states
+  const [modalVisible, setModalVisible] = useState(false);
+  const [mode, setMode] = useState<ModeType>("add");
+  const [modalType, setModalType] = useState<"" | "dosen" | "makul" | "ruangan" | "sesi" | "jadwal">("");
+  const [selectedData, setSelectedData] = useState<any>(null);
 
-  const openModal = (type, mode, data = null) =>
-    setModal({ show: true, type, mode, data });
+  const openModal = (type: typeof modalType, mode: ModeType, data: any = null) => {
+    setModalType(type);
+    setMode(mode);
+    setSelectedData(data);
+    setModalVisible(true);
+  };
 
-  const closeModal = () => setModal({ show: false, type: "", mode: "add", data: null });
+  const closeModal = () => {
+    setModalVisible(false);
+    setModalType("");
+    setSelectedData(null);
+  };
 
-  // Fetching ALL
+  // Fetch all data
   const fetchAll = async () => {
-    const fetcher = async (url) => {
-      const res = await fetch(url);
+    const get = async (endpoint: string) => {
+      const res = await fetch(`${API_URL}/${endpoint}`);
       return res.json();
     };
 
-    setDosen(await fetcher(`${API_URL}/dosen`));
-    setMakul(await fetcher(`${API_URL}/makul`));
-    setRuangan(await fetcher(`${API_URL}/ruangan`));
-    setSesi(await fetcher(`${API_URL}/sesi`));
-    setJadwal(await fetcher(`${API_URL}/jadwal`));
+    setDosen(await get("dosen"));
+    setMakul(await get("makul"));
+    setRuangan(await get("ruangan"));
+    setSesi(await get("sesi"));
+    setJadwal(await get("jadwal"));
   };
 
   useEffect(() => {
     fetchAll();
   }, []);
 
-  const deleteItem = async (type, id) => {
+  // Delete function
+  const deleteItem = async (type: string, id: number) => {
     await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
     fetchAll();
   };
 
-  // Accordion Section Renderer
-  const renderSection = (label, key, items, type, fields) => (
+  // Render accordion
+  const renderSection = (
+    title: string,
+    key: keyof typeof sections,
+    items: any[],
+    type: typeof modalType,
+    fields: string[]
+  ) => (
     <View style={styles.section}>
-      {/* Header */}
-      <TouchableOpacity
-        style={styles.sectionHeader}
-        onPress={() => toggleSection(key)}
-      >
-        <Text style={styles.sectionTitle}>{label}</Text>
+      <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection(key)}>
+        <Text style={styles.sectionTitle}>{title}</Text>
 
         <TouchableOpacity
           style={styles.addButton}
@@ -94,7 +110,6 @@ export default function KelolaDataScreen() {
         </TouchableOpacity>
       </TouchableOpacity>
 
-      {/* Accordion Body */}
       {sections[key] && (
         <View style={styles.sectionBody}>
           {items.length === 0 ? (
@@ -120,7 +135,7 @@ export default function KelolaDataScreen() {
 
                   <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: "#dc2626" }]}
-                    onPress={() => deleteItem(type, item.id)}
+                    onPress={() => deleteItem(type!, item.id)}
                   >
                     <Text style={styles.actionLabel}>Hapus</Text>
                   </TouchableOpacity>
@@ -147,21 +162,21 @@ export default function KelolaDataScreen() {
         "hari",
       ])}
 
-      {/* 💠 Modal Handler */}
-      {modal.show && modal.type === "dosen" && (
-        <ModalDosen close={closeModal} mode={modal.mode} data={modal.data} refresh={fetchAll} />
+      {/* Modal Handler */}
+      {modalVisible && modalType === "dosen" && (
+        <ModalDosen close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
       )}
-      {modal.show && modal.type === "makul" && (
-        <ModalMakul close={closeModal} mode={modal.mode} data={modal.data} refresh={fetchAll} />
+      {modalVisible && modalType === "makul" && (
+        <ModalMakul close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
       )}
-      {modal.show && modal.type === "ruangan" && (
-        <ModalRuangan close={closeModal} mode={modal.mode} data={modal.data} refresh={fetchAll} />
+      {modalVisible && modalType === "ruangan" && (
+        <ModalRuangan close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
       )}
-      {modal.show && modal.type === "sesi" && (
-        <ModalSesi close={closeModal} mode={modal.mode} data={modal.data} refresh={fetchAll} />
+      {modalVisible && modalType === "sesi" && (
+        <ModalSesi close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
       )}
-      {modal.show && modal.type === "jadwal" && (
-        <ModalJadwal close={closeModal} mode={modal.mode} data={modal.data} refresh={fetchAll} />
+      {modalVisible && modalType === "jadwal" && (
+        <ModalJadwal close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
       )}
     </ScrollView>
   );
@@ -187,6 +202,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
   },
+
   addButtonText: { color: "white", fontWeight: "600" },
 
   sectionBody: {
@@ -218,6 +234,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 8,
   },
+
   actionLabel: { color: "white", fontWeight: "700" },
 
   emptyText: { color: "#64748b", textAlign: "center", padding: 10 },

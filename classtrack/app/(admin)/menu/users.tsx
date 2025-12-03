@@ -7,15 +7,23 @@ import {
   FlatList,
 } from "react-native";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
+
+// 🔥 DEFINISIKAN TYPE USER
+type User = {
+  id: number;
+  username: string;
+  role: string;
+};
 
 export default function UserScreen() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const fetchUsers = () => {
     fetch(`${API_URL}/admin/menu/users`)
       .then((res) => res.json())
-      .then((data) => setUsers(data));
+      .then((data) => setUsers(data))
+      .catch((err) => console.log("Error:", err));
   };
 
   useEffect(() => {

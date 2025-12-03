@@ -2,14 +2,18 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+
 export default function MenuScreen() {
   const router = useRouter();
 
-  const MenuItem = ({ icon, title, route }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => router.push(route)}
-    >
+  type MenuItemProps = {
+    icon: keyof typeof Ionicons.glyphMap;
+    title: string;
+    route: any;
+  };
+
+  const MenuItem = ({ icon, title, route }: MenuItemProps) => (
+    <TouchableOpacity style={styles.item} onPress={() => router.push(route)}>
       <View style={styles.itemLeft}>
         <Ionicons name={icon} size={22} color="#2563eb" />
         <Text style={styles.itemText}>{title}</Text>
@@ -22,35 +26,20 @@ export default function MenuScreen() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Menu</Text>
 
-      {/* Section: Data & Sistem */}
       <Text style={styles.sectionTitle}>Sistem</Text>
 
-      <MenuItem
-        icon="time-outline"
-        title="Log Perubahan Jadwal"
-        route="/menu/log"
-      />
+      <MenuItem icon="time-outline" title="Log Perubahan Jadwal" route="(admin)/menu/log" />
+      <MenuItem icon="people-outline" title="User" route="(admin)/menu/users" />
+      <MenuItem icon="settings-outline" title="Pengaturan" route="(admin)/menu/settings" />
+      <MenuItem icon="information-circle-outline" title="Tentang Aplikasi" route="(admin)/menu/about" />
 
-      <MenuItem
-        icon="people-outline"
-        title="User"
-        route="/menu/users"
-      />
-
-      <MenuItem
-        icon="settings-outline"
-        title="Pengaturan"
-        route="/menu/settings"
-      />
-
-      <MenuItem
-        icon="information-circle-outline"
-        title="Tentang Aplikasi"
-        route="/menu/about"
-      />
-
-      {/* Logout */}
-      <TouchableOpacity style={styles.logoutBtn}>
+      {/* LOGOUT */}
+      <TouchableOpacity
+        style={styles.logoutBtn}
+        onPress={() => {
+          router.replace("/login");
+        }}
+      >
         <Ionicons name="log-out-outline" size={20} color="white" />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>

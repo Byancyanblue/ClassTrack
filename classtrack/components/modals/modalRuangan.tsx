@@ -8,9 +8,16 @@ import {
   StyleSheet,
 } from "react-native";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
 
-export default function ModalRuangan({ close, mode, data, refresh }) {
+interface ModalRuanganProps {
+  close: () => void;
+  mode: "add" | "edit";
+  data?: any;     // boleh diganti lebih spesifik
+  refresh: () => void;
+}
+
+export default function ModalRuangan({ close, mode, data, refresh } : ModalRuanganProps) {
   const [nama, setNama] = useState(data?.nama_ruangan || "");
   const [kapasitas, setKapasitas] = useState(String(data?.kapasitas || ""));
 
