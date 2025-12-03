@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet } from "react-native";
 
 const API_URL = "http://192.168.60.243:3000/api/dosen";
 
 interface ModalDosenProps {
+  visible: boolean;          // ← DITAMBAHKAN
   close: () => void;
   mode: "add" | "edit";
   data?: any;
   refresh: () => void;
 }
 
-export default function ModalDosen({ close, mode, data, refresh }: ModalDosenProps) {
-  const [nama, setNama] = useState(data?.nama || "");
-  const [email, setEmail] = useState(data?.email || "");
-  const [NIP, setNIP] = useState(data?.NIP || "");
-  const [kKeahlian, setKKeahlian] = useState(data?.k_keahlian || "");
+export default function ModalDosen({ visible, close, mode, data, refresh }: ModalDosenProps) {
+  const [nama, setNama] = useState("");
+  const [email, setEmail] = useState("");
+  const [NIP, setNIP] = useState("");
+  const [kKeahlian, setKKeahlian] = useState("");
+
+  // Reset atau isi saat modal dibuka
+  useEffect(() => {
+    if (visible) {
+      setNama(data?.nama || "");
+      setEmail(data?.email || "");
+      setNIP(data?.NIP || "");
+      setKKeahlian(data?.k_keahlian || "");
+    }
+  }, [visible]);
 
   const submit = async () => {
     const body = { nama, email, NIP, k_keahlian: kKeahlian };
@@ -30,7 +41,7 @@ export default function ModalDosen({ close, mode, data, refresh }: ModalDosenPro
   };
 
   return (
-    <Modal transparent animationType="slide">
+    <Modal transparent animationType="slide" visible={visible}>
       <View style={styles.overlay}>
         <View style={styles.box}>
           <Text style={styles.title}>
@@ -61,14 +72,17 @@ export default function ModalDosen({ close, mode, data, refresh }: ModalDosenPro
   );
 }
 
-
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1, justifyContent: "center", alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   box: {
-    width: "85%", backgroundColor: "white", padding: 20,
+    width: "85%",
+    backgroundColor: "white",
+    padding: 20,
     borderRadius: 12,
   },
   title: { fontSize: 18, fontWeight: "bold", marginBottom: 12 },

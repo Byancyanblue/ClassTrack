@@ -18,7 +18,7 @@ export default function AboutScreen() {
         admin, dosen, dan mahasiswa dalam mengelola informasi akademik.
       </Text>
 
-      <Text style={styles.footer}>Dibuat oleh: Tuna Mayo ❤️</Text>
+      <Text style={styles.footer}>Dibuat oleh: 405078</Text>
     </View>
   );
 }

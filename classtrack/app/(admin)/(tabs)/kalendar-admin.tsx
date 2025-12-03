@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
   },
 
   filterContainer: {
+    alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,

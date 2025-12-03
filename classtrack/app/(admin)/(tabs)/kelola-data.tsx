@@ -3,12 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  LayoutAnimation,
-  Platform,
-  UIManager,
+  TouchableOpacity,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 import ModalDosen from "../../../components/modals/modalDosen";
 import ModalMakul from "../../../components/modals/modalMakul";
@@ -18,42 +16,26 @@ import ModalJadwal from "../../../components/modals/modalJadwal";
 
 const API_URL = "http://192.168.60.243:3000/api";
 
-// Enable layout animation on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
 type ModeType = "add" | "edit";
+type ModalType = "" | "dosen" | "makul" | "ruangan" | "sesi" | "jadwal";
 
 export default function KelolaDataScreen() {
-  // Accordion states
-  const [sections, setSections] = useState({
-    dosen: false,
-    makul: false,
-    ruangan: false,
-    sesi: false,
-    jadwal: false,
-  });
+  const router = useRouter();
 
-  const toggleSection = (key: keyof typeof sections) => {
-    LayoutAnimation.easeInEaseOut();
-    setSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // Data states
+  // DATA
   const [dosen, setDosen] = useState<any[]>([]);
   const [makul, setMakul] = useState<any[]>([]);
   const [ruangan, setRuangan] = useState<any[]>([]);
   const [sesi, setSesi] = useState<any[]>([]);
   const [jadwal, setJadwal] = useState<any[]>([]);
 
-  // Modal handling states
+  // MODAL
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<ModalType>("");
   const [mode, setMode] = useState<ModeType>("add");
-  const [modalType, setModalType] = useState<"" | "dosen" | "makul" | "ruangan" | "sesi" | "jadwal">("");
   const [selectedData, setSelectedData] = useState<any>(null);
 
-  const openModal = (type: typeof modalType, mode: ModeType, data: any = null) => {
+  const openModal = (type: ModalType, mode: ModeType, data: any = null) => {
     setModalType(type);
     setMode(mode);
     setSelectedData(data);
@@ -66,7 +48,7 @@ export default function KelolaDataScreen() {
     setSelectedData(null);
   };
 
-  // Fetch all data
+  // FETCH SEMUA DATA
   const fetchAll = async () => {
     const get = async (endpoint: string) => {
       const res = await fetch(`${API_URL}/${endpoint}`);
@@ -84,158 +66,217 @@ export default function KelolaDataScreen() {
     fetchAll();
   }, []);
 
-  // Delete function
-  const deleteItem = async (type: string, id: number) => {
-    await fetch(`${API_URL}/${type}/${id}`, { method: "DELETE" });
-    fetchAll();
-  };
+  // RENDER GRID CARD
+  const renderGridCard = (item: any, fields: any[]) => (
+    <View key={item.id} style={styles.gridCard}>
+      {fields.map((field: any, idx: number) => (
+        <View key={idx} style={{ marginBottom: 6 }}>
+          <Text style={styles.fieldLabel}>{field.label}</Text>
+          <Text style={styles.fieldValue}>{item[field.key]}</Text>
+        </View>
+      ))}
+    </View>
+  );
 
-  // Render accordion
-  const renderSection = (
+  // RENDER PREVIEW SECTION
+  const renderPreview = (
     title: string,
-    key: keyof typeof sections,
-    items: any[],
-    type: typeof modalType,
-    fields: string[]
+    data: any[],
+    navigate: string,
+    type: ModalType,
+    fields: any[]
   ) => (
-    <View style={styles.section}>
-      <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection(key)}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+    <View style={styles.card}>
+      <View style={styles.headerRow}>
+        <Text style={styles.cardTitle}>{title}</Text>
 
         <TouchableOpacity
-          style={styles.addButton}
+          style={styles.addBtn}
           onPress={() => openModal(type, "add")}
         >
-          <Text style={styles.addButtonText}>+ Tambah</Text>
+          <Text style={styles.addBtnText}>+ Tambah</Text>
         </TouchableOpacity>
-      </TouchableOpacity>
+      </View>
 
-      {sections[key] && (
-        <View style={styles.sectionBody}>
-          {items.length === 0 ? (
-            <Text style={styles.emptyText}>Belum ada data.</Text>
-          ) : (
-            items.map((item) => (
-              <View key={item.id} style={styles.itemRow}>
-                <View style={{ flex: 1 }}>
-                  {fields.map((f) => (
-                    <Text key={f} style={styles.itemText}>
-                      • {item[f]}
-                    </Text>
-                  ))}
-                </View>
-
-                <View style={styles.actions}>
-                  <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: "#2563eb" }]}
-                    onPress={() => openModal(type, "edit", item)}
-                  >
-                    <Text style={styles.actionLabel}>Edit</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: "#dc2626" }]}
-                    onPress={() => deleteItem(type!, item.id)}
-                  >
-                    <Text style={styles.actionLabel}>Hapus</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
+      {data.length === 0 ? (
+        <Text style={styles.empty}>Belum ada data.</Text>
+      ) : (
+        <View style={styles.grid}>
+          {data.slice(0, 4).map((item) => renderGridCard(item, fields))}
         </View>
       )}
+
+      <TouchableOpacity
+        onPress={() => router.push(navigate)}
+        style={styles.seeMore}
+      >
+        <Text style={styles.seeMoreText}>Lihat selengkapnya</Text>
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <ScrollView style={styles.container}>
-      {renderSection("Data Dosen", "dosen", dosen, "dosen", ["nama", "email", "k_keahlian"])}
-      {renderSection("Data Mata Kuliah", "makul", makul, "makul", ["kode_mk", "nama_mk", "semester"])}
-      {renderSection("Data Ruangan", "ruangan", ruangan, "ruangan", ["nama_ruangan", "kapasitas"])}
-      {renderSection("Data Sesi", "sesi", sesi, "sesi", ["nama_sesi", "jam_mulai", "jam_selesai"])}
-      {renderSection("Data Jadwal", "jadwal", jadwal, "jadwal", [
-        "mataKuliah",
-        "dosen",
-        "ruang",
-        "sesi",
-        "hari",
+      {renderPreview("Data Dosen", dosen, "/kelola/dosen-list", "dosen", [
+        { label: "Nama", key: "nama" },
+        { label: "Email", key: "email" },
+        { label: "Keahlian", key: "k_keahlian" },
       ])}
 
-      {/* Modal Handler */}
+      {renderPreview(
+        "Data Mata Kuliah",
+        makul,
+        "/kelola/makul-list",
+        "makul",
+        [
+          { label: "Kode MK", key: "kode_mk" },
+          { label: "Nama MK", key: "nama_mk" },
+          { label: "SKS", key: "sks" },
+        ]
+      )}
+
+      {renderPreview(
+        "Data Ruangan",
+        ruangan,
+        "/kelola/ruangan-list",
+        "ruangan",
+        [
+          { label: "Ruangan", key: "nama_ruangan" },
+          { label: "Kapasitas", key: "kapasitas" },
+        ]
+      )}
+
+      {renderPreview("Data Sesi", sesi, "/kelola/sesi-list", "sesi", [
+        { label: "Nama Sesi", key: "nama_sesi" },
+        { label: "Jam Mulai", key: "jam_mulai" },
+      ])}
+
+      {renderPreview(
+        "Data Jadwal",
+        jadwal,
+        "/kelola/jadwal-list",
+        "jadwal",
+        [
+          { label: "Mata Kuliah", key: "mataKuliah" },
+          { label: "Dosen", key: "dosen" },
+          { label: "Hari", key: "hari" },
+        ]
+      )}
+
+      {/* =======================
+          MODALS
+      ======================== */}
       {modalVisible && modalType === "dosen" && (
-        <ModalDosen close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
+        <ModalDosen
+          close={closeModal}
+          mode={mode}
+          data={selectedData}
+          refresh={fetchAll}
+          visible={modalVisible}
+        />
       )}
+
       {modalVisible && modalType === "makul" && (
-        <ModalMakul close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
+        <ModalMakul
+          close={closeModal}
+          mode={mode}
+          data={selectedData}
+          refresh={fetchAll}
+        />
       )}
+
       {modalVisible && modalType === "ruangan" && (
-        <ModalRuangan close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
+        <ModalRuangan
+          close={closeModal}
+          mode={mode}
+          data={selectedData}
+          refresh={fetchAll}
+        />
       )}
+
       {modalVisible && modalType === "sesi" && (
-        <ModalSesi close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
+        <ModalSesi
+          close={closeModal}
+          mode={mode}
+          data={selectedData}
+          refresh={fetchAll}
+        />
       )}
+
       {modalVisible && modalType === "jadwal" && (
-        <ModalJadwal close={closeModal} mode={mode} data={selectedData} refresh={fetchAll} />
+        <ModalJadwal
+          close={closeModal}
+          mode={mode}
+          data={selectedData}
+          refresh={fetchAll}
+        />
       )}
     </ScrollView>
   );
 }
 
+// =========================================
+//  STYLES – UI BARU
+// =========================================
+
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: "#f8fafc" },
+  container: { padding: 16 },
 
-  section: { marginBottom: 24 },
+  card: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 28,
+    elevation: 4,
+  },
 
-  sectionHeader: {
-    paddingVertical: 14,
+  headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    marginBottom: 14,
   },
 
-  sectionTitle: { fontSize: 20, fontWeight: "bold", color: "#0f172a" },
+  cardTitle: { fontSize: 20, fontWeight: "bold", color: "#0f172a" },
 
-  addButton: {
+  addBtn: {
     backgroundColor: "#2563eb",
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-
-  addButtonText: { color: "white", fontWeight: "600" },
-
-  sectionBody: {
-    backgroundColor: "white",
-    padding: 12,
     borderRadius: 10,
-    elevation: 3,
-    marginTop: 8,
   },
 
-  itemRow: {
+  addBtnText: { color: "white", fontWeight: "600" },
+
+  grid: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+
+  gridCard: {
+    width: "100%",
     backgroundColor: "#f1f5f9",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 12,
+    elevation: 2,
   },
 
-  itemText: { color: "#0f172a", fontSize: 14 },
-
-  actions: {
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
+  fieldLabel: {
+    fontSize: 12,
+    color: "#64748b",
+    fontWeight: "600",
   },
 
-  actionButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+  fieldValue: {
+    fontSize: 15,
+    color: "#0f172a",
+    fontWeight: "700",
+    marginBottom: 4,
   },
 
-  actionLabel: { color: "white", fontWeight: "700" },
+  seeMore: { marginTop: 8 },
+  seeMoreText: { color: "#2563eb", fontWeight: "600" },
 
-  emptyText: { color: "#64748b", textAlign: "center", padding: 10 },
+  empty: { color: "#64748b", fontStyle: "italic" },
 });

@@ -24,54 +24,69 @@ router.get("/stats", async (req, res) => {
       LIMIT 10
     `);
 
+    const getBadgeColor = (aksi = "") => {
+      const lower = aksi.toLowerCase();
+
+      if (lower.includes("online")) return "#2563eb";      // biru
+      if (lower.includes("offline")) return "#ea580c";     // oranye
+      if (lower.includes("diundur")) return "#7c3aed";     // ungu
+      if (lower.includes("batal") || lower.includes("delete")) return "#dc2626";  // merah
+      if (lower.includes("sesuai")) return "#16a34a";      // hijau
+
+      return "#475569"; // default abu-abu
+    };
+
     const notifikasi =
-      logs.length > 0
-        ? logs.map((row) => {
-            let message = "";
-            const mk = row.nama_mk;
+  logs.length > 0
+    ? logs.map((row) => {
+        let message = "";
+        const mk = row.nama_mk;
 
-            switch (row.aksi.toLowerCase()) {
-              case "update":
-                message = `${mk} (Jadwal #${row.id_jadwal}) telah diperbarui.`;
-                break;
+        switch (row.aksi.toLowerCase()) {
+          case "update":
+            message = `${mk} (Jadwal #${row.id_jadwal}) telah diperbarui.`;
+            break;
 
-              case "delete":
-                message = `${mk} (Jadwal #${row.id_jadwal}) telah dihapus.`;
-                break;
+          case "delete":
+            message = `${mk} (Jadwal #${row.id_jadwal}) telah dihapus.`;
+            break;
 
-              case "online":
-                message = `${mk} diubah menjadi mode Online.`;
-                break;
+          case "online":
+            message = `${mk} diubah menjadi mode Online.`;
+            break;
 
-              case "offline":
-                message = `${mk} diubah menjadi Tatap Muka.`;
-                break;
+          case "offline":
+            message = `${mk} diubah menjadi Tatap Muka.`;
+            break;
 
-              case "diundur":
-                message = `${mk} mengalami perubahan jadwal (diundur).`;
-                break;
+          case "diundur":
+            message = `${mk} mengalami perubahan jadwal (diundur).`;
+            break;
 
-              case "sesuai jadwal":
-                message = `${mk} kembali mengikuti jadwal semula.`;
-                break;
+          case "sesuai":
+            message = `${mk} kembali mengikuti jadwal semula.`;
+            break;
 
-              default:
-                message = `Perubahan pada ${mk}: ${row.aksi}`;
-            }
+          default:
+            message = `Perubahan pada ${mk}: ${row.aksi}`;
+        }
 
-            return {
-              id: row.id,
-              aksi: message,
-              waktu: row.waktu,
-            };
-          })
-        : [
-            {
-              id: 0,
-              aksi: "Belum ada perubahan jadwal.",
-              waktu: null,
-            },
-          ];
+        return {
+          id: row.id,
+          aksi: message,
+          rawAksi: row.aksi,        // untuk menentukan warna
+          waktu: row.waktu,
+          badgeColor: getBadgeColor(row.aksi), // ←⚡ warna badge dari backend
+        };
+      })
+    : [
+        {
+          id: 0,
+          aksi: "Belum ada perubahan jadwal.",
+          waktu: null,
+          badgeColor: "#475569",
+        },
+      ];
 
     res.json({
       ruangTerpakai: ruang.total,
