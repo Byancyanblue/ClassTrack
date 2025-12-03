@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     marginTop: 10,
   },
-  cancel: { marginRight: 10 },
-  cancelText: { color: "red", fontWeight: "600" },
+  cancel: { marginRight: 10, backgroundColor: "#eb2525ff", padding: 10, borderRadius: 8 },
+  cancelText: { color: "white", fontWeight: "600" },
   save: { backgroundColor: "#2563eb", padding: 10, borderRadius: 8 },
   saveText: { color: "white", fontWeight: "600" },
 });

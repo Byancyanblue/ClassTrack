@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { db } from "./db/connection.js"; // <--- tambahkan ini
+import { db } from "./db/connection.js";
 
 import userRoutes from "./routes/userRoutes.js";
 import dosenRoutes from "./routes/dosenRoutes.js";
@@ -18,6 +18,7 @@ import dashboardDosenRoutes from "./routes/dosen/dashboardDosenRoutes.js";
 import jadwalAkademikRoutes from "./routes/dosen/jadwalAkademikRoutes.js";
 import jadwalDosenRoutes from "./routes/dosen/jadwalDosenRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import dashboard from "./routes/mahasiswa/dashboard.js"; 
 
 const app = express();
 app.use(cors());
@@ -25,8 +26,8 @@ app.use(express.json());
 
 // 🔍 Check database connection on startup
 db.getConnection()
-  .then(() => console.log("✅ Connected to MySQL Database"))
-  .catch((err) => console.log("❌ DB Connection Failed:", err));
+  .then(() => console.log("✅ Connected to MySQL Database"))
+  .catch((err) => console.log("❌ DB Connection Failed:", err));
 
 // Test route
 app.use("/api/test", testRoutes);
@@ -44,10 +45,12 @@ app.use("/api/sesi", sesiRoutes);
 app.use("/api/jadwal", jadwalRoutes);
 app.use("/api/log", logRoutes);
 
-//LOGIN
+// LOGIN
 app.use("/api", authRoutes);
 
-//ROUTES ADMIN
+app.use("/api/mahasiswa", dashboard); 
+
+// ROUTES ADMIN
 app.use("/api/admin/dashboard-admin", dashboardAdminRoutes);
 app.use("/api/admin/kalendar-admin", kalendarAdminRoutes);
 app.use("/api/admin/menu", logAdminRoutes);
@@ -58,9 +61,10 @@ app.use("/api/dosen", dashboardDosenRoutes);
 
 // GLOBAL ERROR HANDLER (opsional tapi sangat direkomendasikan)
 app.use((err, req, res, next) => {
-  console.log("🔥 ERROR:", err);
-  res.status(500).json({ error: "Internal Server Error", detail: err.message });
+  console.log("🔥 ERROR:", err);
+  res.status(500).json({ error: "Internal Server Error", detail: err.message });
 });
 
-const PORT = 3000;
+// ⚠️ PERHATIKAN PORT INI (3030)
+const PORT = 3030;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
