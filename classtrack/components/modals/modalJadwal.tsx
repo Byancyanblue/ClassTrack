@@ -9,100 +9,50 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
-const API_URL = "http://192.168.60.243:3000/api";
+const API_URL = "http://192.168.164.243:3000/api";
 
-/** --- tipe data (boleh diperketat sesuai response API) --- */
-type OptionItem = {
-  id: number | string;
-  [key: string]: any;
-};
-
-interface JadwalData {
-  id?: number | string;
-  id_makul?: number | string;
-  id_dosen?: number | string;
-  id_ruangan?: number | string;
-  id_sesi?: number | string;
-  hari?: string;
-  semester?: string;
-  tahun_ajaran?: string;
-}
-
-interface ModalJadwalProps {
-  close: () => void;
-  mode: "add" | "edit";
-  data?: JadwalData | null;
-  refresh: () => void;
-}
-
-export default function ModalJadwal({
-  close,
-  mode,
-  data,
-  refresh,
-}: ModalJadwalProps) {
-  const [form, setForm] = useState<JadwalData>({
-    id_makul: data?.id_makul ?? "",
-    id_dosen: data?.id_dosen ?? "",
-    id_ruangan: data?.id_ruangan ?? "",
-    id_sesi: data?.id_sesi ?? "",
-    hari: data?.hari ?? "",
-    semester: data?.semester ?? "",
-    tahun_ajaran: data?.tahun_ajaran ?? "2024/2025",
+export default function ModalJadwal({ close, mode, data, refresh }) {
+  const [form, setForm] = useState({
+    id_makul: data?.id_makul || "",
+    id_dosen: data?.id_dosen || "",
+    id_ruangan: data?.id_ruangan || "",
+    id_sesi: data?.id_sesi || "",
+    hari: data?.hari || "",
+    semester: data?.semester || "",
+    tahun_ajaran: data?.tahun_ajaran || "2024/2025",
   });
 
-  const [makul, setMakul] = useState<OptionItem[]>([]);
-  const [dosen, setDosen] = useState<OptionItem[]>([]);
-  const [ruangan, setRuangan] = useState<OptionItem[]>([]);
-  const [sesi, setSesi] = useState<OptionItem[]>([]);
+  const [makul, setMakul] = useState([]);
+  const [dosen, setDosen] = useState([]);
+  const [ruangan, setRuangan] = useState([]);
+  const [sesi, setSesi] = useState([]);
 
   useEffect(() => {
-    // fetch wrapper dengan catch sederhana
-    const fetchAll = async () => {
-      try {
-        const [mRes, dRes, rRes, sRes] = await Promise.all([
-          fetch(`${API_URL}/makul`),
-          fetch(`${API_URL}/dosen`),
-          fetch(`${API_URL}/ruangan`),
-          fetch(`${API_URL}/sesi`),
-        ]);
-
-        if (mRes.ok) setMakul(await mRes.json());
-        if (dRes.ok) setDosen(await dRes.json());
-        if (rRes.ok) setRuangan(await rRes.json());
-        if (sRes.ok) setSesi(await sRes.json());
-      } catch (err) {
-        console.warn("Fetch error:", err);
-      }
-    };
-
-    fetchAll();
+    fetch(`${API_URL}/makul`).then((r) => r.json()).then(setMakul);
+    fetch(`${API_URL}/dosen`).then((r) => r.json()).then(setDosen);
+    fetch(`${API_URL}/ruangan`).then((r) => r.json()).then(setRuangan);
+    fetch(`${API_URL}/sesi`).then((r) => r.json()).then(setSesi);
   }, []);
 
-  // update dengan tipe eksplisit
-  const update = (key: keyof JadwalData, value: string | number) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const update = (key, value) => setForm({ ...form, [key]: value });
 
   const save = async () => {
-    try {
-      if (mode === "edit" && data?.id) {
-        await fetch(`${API_URL}/jadwal/${data.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
-      } else {
-        await fetch(`${API_URL}/jadwal`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
-      }
-      refresh();
-      close();
-    } catch (err) {
-      console.warn("Save error:", err);
+    if (mode === "edit") {
+      await fetch(`${API_URL}/jadwal/${data.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } else {
+      await fetch(`${API_URL}/jadwal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
     }
+
+    refresh();
+    close();
   };
 
   return (
@@ -116,16 +66,16 @@ export default function ModalJadwal({
           {/* Dropdown Makul */}
           <Text style={styles.label}>Mata Kuliah</Text>
           <Picker
-            selectedValue={String(form.id_makul ?? "")}
-            onValueChange={(v: string | number) => update("id_makul", v)}
+            selectedValue={form.id_makul}
+            onValueChange={(v) => update("id_makul", v)}
             style={styles.picker}
           >
             <Picker.Item label="Pilih Mata Kuliah" value="" />
             {makul.map((m) => (
               <Picker.Item
-                key={String(m.id)}
-                label={`${m.kode_mk ?? ""} - ${m.nama_mk ?? ""}`}
-                value={String(m.id)}
+                key={m.id}
+                label={`${m.kode_mk} - ${m.nama_mk}`}
+                value={m.id}
               />
             ))}
           </Picker>
@@ -133,46 +83,42 @@ export default function ModalJadwal({
           {/* Dosen */}
           <Text style={styles.label}>Dosen Pengampu</Text>
           <Picker
-            selectedValue={String(form.id_dosen ?? "")}
-            onValueChange={(v: string | number) => update("id_dosen", v)}
+            selectedValue={form.id_dosen}
+            onValueChange={(v) => update("id_dosen", v)}
             style={styles.picker}
           >
             <Picker.Item label="Pilih Dosen" value="" />
             {dosen.map((d) => (
-              <Picker.Item key={String(d.id)} label={d.nama ?? ""} value={String(d.id)} />
+              <Picker.Item key={d.id} label={d.nama} value={d.id} />
             ))}
           </Picker>
 
           {/* Ruangan */}
           <Text style={styles.label}>Ruangan</Text>
           <Picker
-            selectedValue={String(form.id_ruangan ?? "")}
-            onValueChange={(v: string | number) => update("id_ruangan", v)}
+            selectedValue={form.id_ruangan}
+            onValueChange={(v) => update("id_ruangan", v)}
             style={styles.picker}
           >
             <Picker.Item label="Pilih Ruangan" value="" />
             {ruangan.map((r) => (
-              <Picker.Item
-                key={String(r.id)}
-                label={r.nama_ruangan ?? ""}
-                value={String(r.id)}
-              />
+              <Picker.Item key={r.id} label={r.nama_ruangan} value={r.id} />
             ))}
           </Picker>
 
           {/* Sesi */}
           <Text style={styles.label}>Sesi</Text>
           <Picker
-            selectedValue={String(form.id_sesi ?? "")}
-            onValueChange={(v: string | number) => update("id_sesi", v)}
+            selectedValue={form.id_sesi}
+            onValueChange={(v) => update("id_sesi", v)}
             style={styles.picker}
           >
             <Picker.Item label="Pilih Sesi" value="" />
             {sesi.map((s) => (
               <Picker.Item
-                key={String(s.id)}
-                label={`${s.nama_sesi ?? ""} (${s.jam_mulai ?? ""} - ${s.jam_selesai ?? ""})`}
-                value={String(s.id)}
+                key={s.id}
+                label={`${s.nama_sesi} (${s.jam_mulai} - ${s.jam_selesai})`}
+                value={s.id}
               />
             ))}
           </Picker>
@@ -180,8 +126,8 @@ export default function ModalJadwal({
           {/* Hari */}
           <Text style={styles.label}>Hari</Text>
           <Picker
-            selectedValue={form.hari ?? ""}
-            onValueChange={(v: string) => update("hari", v)}
+            selectedValue={form.hari}
+            onValueChange={(v) => update("hari", v)}
             style={styles.picker}
           >
             {["Senin", "Selasa", "Rabu", "Kamis", "Jumat"].map((h) => (
@@ -192,8 +138,8 @@ export default function ModalJadwal({
           {/* Semester */}
           <Text style={styles.label}>Semester</Text>
           <Picker
-            selectedValue={form.semester ?? ""}
-            onValueChange={(v: string) => update("semester", v)}
+            selectedValue={form.semester}
+            onValueChange={(v) => update("semester", v)}
             style={styles.picker}
           >
             <Picker.Item label="Ganjil" value="Ganjil" />
@@ -203,8 +149,8 @@ export default function ModalJadwal({
           {/* Tahun Ajaran */}
           <Text style={styles.label}>Tahun Ajaran</Text>
           <Picker
-            selectedValue={form.tahun_ajaran ?? "2024/2025"}
-            onValueChange={(v: string) => update("tahun_ajaran", v)}
+            selectedValue={form.tahun_ajaran}
+            onValueChange={(v) => update("tahun_ajaran", v)}
             style={styles.picker}
           >
             {["2024/2025", "2025/2026", "2026/2027"].map((t) => (

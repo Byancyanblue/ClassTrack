@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet } from "react-native";
 
-const API_URL = "http://192.168.60.243:3000/api/dosen";
+const API_URL = "http://192.168.164.243:3000/api/dosen";
+
 
 interface ModalDosenProps {
   visible: boolean;          // ← DITAMBAHKAN

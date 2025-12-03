@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+
 const API_URL = "http://192.168.60.243:3000/api";
+
 
 /* ============================
    INTERFACES
