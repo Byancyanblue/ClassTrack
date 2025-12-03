@@ -42,9 +42,9 @@ export default function DosenTabs() {
       />
 
       <Tabs.Screen
-        name="laporanDosen"
+        name="jadwalAkademik"
         options={{
-          title: "Laporan",
+          title: "Jadwal Akademik",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="document-text-outline" size={size} color={color} />
           ),
@@ -52,9 +52,9 @@ export default function DosenTabs() {
       />
 
       <Tabs.Screen
-        name="profileDosen"
+        name="jadwalDosen"
         options={{
-          title: "Profil",
+          title: "Jadwal Dosen",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),

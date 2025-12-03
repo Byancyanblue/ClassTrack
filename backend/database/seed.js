@@ -71,29 +71,28 @@ async function seed() {
       VALUES (2, 'Dr. Login Utama', '19821021', 'dosenlogin@gmail.com', 'Software Engineer')
     `);
 
-    // 19 dosen lainnya
+    // 19 dosen lainnya – buatkan user dulu
     for (let i = 0; i < 19; i++) {
-      // 1. BUAT USER DULU UNTUK DOSEN INI
-      const usernameDosen = `dosen_dummy_${i}`; // Buat username unik
-      const [userResult] = await db.query(
-        `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
-        [usernameDosen, '123456', 'dosen']
-      );
+      // 1. Insert ke tabel users
+      const emailDosen = `dosen${i}@gmail.com`;
+      const [userInsert] = await db.query(`
+        INSERT INTO users (username, password, role)
+        VALUES (?, '123456', 'dosen')
+      `, [emailDosen]);
 
-      const newUserId = userResult.insertId; // Ambil ID dari user yang baru dibuat
+      const userId = userInsert.insertId;
 
-      // 2. BARU MASUKKAN DATA DOSEN MENGGUNAKAN ID USER TERSEBUT
-      await db.query(
-        `INSERT INTO dosen (user_id, nama, NIP, email, k_keahlian)
-         VALUES (?, ?, ?, ?, ?)`,
-        [
-          newUserId, // <--- Ganti null dengan ID user yang valid
-          namaDosen[i],
-          "19000" + i,
-          `dosen${i}@gmail.com`,
-          keahlian[i % 4],
-        ]
-      );
+      // 2. Insert ke tabel dosen
+      await db.query(`
+        INSERT INTO dosen (user_id, nama, NIP, email, k_keahlian)
+        VALUES (?, ?, ?, ?, ?)
+      `, [
+        userId,
+        namaDosen[i],
+        "19000" + i,
+        emailDosen,
+        keahlian[i % 4],
+      ]);
     }
 
     // ==========================
