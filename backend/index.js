@@ -14,6 +14,9 @@ import dashboardAdminRoutes from "./routes/admin/dashboardAdminRoutes.js";
 import kalendarAdminRoutes from "./routes/admin/kalendarAdminRoutes.js";
 import logAdminRoutes from "./routes/admin/log.js";
 import userAdminRoutes from "./routes/admin/users.js";
+import dashboardDosenRoutes from "./routes/dosen/dashboardDosenRoutes.js";
+import jadwalAkademikRoutes from "./routes/dosen/jadwalAkademikRoutes.js";
+import jadwalDosenRoutes from "./routes/dosen/jadwalDosenRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
@@ -27,6 +30,10 @@ db.getConnection()
 
 // Test route
 app.use("/api/test", testRoutes);
+
+// ROUTES DOSEN
+app.use("/api/dosen/jadwalAkademik", jadwalAkademikRoutes);
+app.use("/api/dosen/jadwal-personal", jadwalDosenRoutes);
 
 // ROUTES
 app.use("/api/users", userRoutes);
@@ -45,6 +52,9 @@ app.use("/api/admin/dashboard-admin", dashboardAdminRoutes);
 app.use("/api/admin/kalendar-admin", kalendarAdminRoutes);
 app.use("/api/admin/menu", logAdminRoutes);
 app.use("/api/admin/menu", userAdminRoutes);
+
+// ROUTES DOSEN
+app.use("/api/dosen", dashboardDosenRoutes);
 
 // GLOBAL ERROR HANDLER (opsional tapi sangat direkomendasikan)
 app.use((err, req, res, next) => {

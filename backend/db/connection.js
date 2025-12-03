@@ -6,7 +6,7 @@ dotenv.config();
 export const db = await mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "123fourfive",
+  password: process.env.DB_PASS || "fas123",
   database: process.env.DB_NAME || "classtrack",
   waitForConnections: true,
   connectionLimit: 10,
