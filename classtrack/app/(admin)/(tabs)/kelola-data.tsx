@@ -42,24 +42,23 @@ export default function KelolaDataScreen() {
     setModalVisible(true);
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    setModalType("");
-    setSelectedData(null);
-  };
+
+  const closeModal = () => setMode({ show: false, type: "", mode: "add", data: null });
+
 
   // FETCH SEMUA DATA
+
   const fetchAll = async () => {
-    const get = async (endpoint: string) => {
-      const res = await fetch(`${API_URL}/${endpoint}`);
+    const fetcher = async (url) => {
+      const res = await fetch(url);
       return res.json();
     };
 
-    setDosen(await get("dosen"));
-    setMakul(await get("makul"));
-    setRuangan(await get("ruangan"));
-    setSesi(await get("sesi"));
-    setJadwal(await get("jadwal"));
+    setDosen(await fetcher(`${API_URL}/dosen`));
+    setMakul(await fetcher(`${API_URL}/makul`));
+    setRuangan(await fetcher(`${API_URL}/ruangan`));
+    setSesi(await fetcher(`${API_URL}/sesi`));
+    setJadwal(await fetcher(`${API_URL}/jadwal`));
   };
 
   useEffect(() => {
@@ -89,6 +88,7 @@ export default function KelolaDataScreen() {
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <Text style={styles.cardTitle}>{title}</Text>
+
 
         <TouchableOpacity
           style={styles.addBtn}

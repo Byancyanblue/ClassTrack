@@ -10,7 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "../../store/useAuth";
 
-const API_URL = "http://192.168.100.177:3030/api";
+const API_URL = "http://192.168.60.243:3030/api";
 
 export default function LoginPage() {
   const router = useRouter();
