@@ -73,11 +73,21 @@ async function seed() {
 
     // 19 dosen lainnya
     for (let i = 0; i < 19; i++) {
+      // 1. BUAT USER DULU UNTUK DOSEN INI
+      const usernameDosen = `dosen_dummy_${i}`; // Buat username unik
+      const [userResult] = await db.query(
+        `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
+        [usernameDosen, '123456', 'dosen']
+      );
+
+      const newUserId = userResult.insertId; // Ambil ID dari user yang baru dibuat
+
+      // 2. BARU MASUKKAN DATA DOSEN MENGGUNAKAN ID USER TERSEBUT
       await db.query(
         `INSERT INTO dosen (user_id, nama, NIP, email, k_keahlian)
          VALUES (?, ?, ?, ?, ?)`,
         [
-          null,
+          newUserId, // <--- Ganti null dengan ID user yang valid
           namaDosen[i],
           "19000" + i,
           `dosen${i}@gmail.com`,

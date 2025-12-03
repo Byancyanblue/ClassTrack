@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView  } from "react-native";
 
-  const API_URL = "http://192.168.60.243:3000/api";
+  const API_URL = "http://172.16.255.192:3000/api";
 
 interface NotifikasiItem {
   id: number;

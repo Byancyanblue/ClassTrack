@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,46 +7,24 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const API_URL = "http://192.168.60.243:3000/api";
-
-// --- tipe data log (sesuaikan jika respons API berbeda) ---
-interface LogItem {
-  id?: number | string;
-  aksi?: string | null;
-  waktu?: string | number | null; // bisa ISO string atau timestamp
-  [key: string]: any;
-}
+const API_URL = "http://192.168.164.243:3000/api";
 
 export default function LogScreen() {
-  const [logs, setLogs] = useState<LogItem[]>([]);
-  const [filter, setFilter] = useState<
-    | "Semua"
-    | "Hari Ini"
-    | "7 Hari Terakhir"
-    | "Bulan Ini"
-    | "Online"
-    | "Offline"
-    | "Diundur"
-    | "Dibatalkan"
-  >("Semua");
+  const [logs, setLogs] = useState([]);
+  const [filter, setFilter] = useState("Semua");
 
   useEffect(() => {
     fetch(`${API_URL}/admin/menu/log`)
       .then((res) => res.json())
-      .then((data) => {
-        // defensive: jika API mengembalikan object dengan field data: []
-        if (Array.isArray(data)) setLogs(data);
-        else if (Array.isArray(data.data)) setLogs(data.data);
-        else setLogs([]);
-      })
-      .catch((err) => console.log("Error fetching logs:", err));
+      .then((data) => setLogs(data))
+      .catch((err) => console.log("Error:", err));
   }, []);
 
   // =============================
   // BADGE COLOR HANDLER
   // =============================
-  const getBadgeColor = (aksi?: string | null) => {
-    const lower = (aksi || "").toLowerCase();
+  const getBadgeColor = (aksi: string) => {
+    const lower = aksi.toLowerCase();
     if (lower.includes("online")) return "#2563eb"; // biru
     if (lower.includes("offline")) return "#ea580c"; // oranye
     if (lower.includes("diundur")) return "#7c3aed"; // ungu
@@ -56,22 +34,13 @@ export default function LogScreen() {
   };
 
   // =============================
-  // FILTER HANDLER (defensive)
+  // FILTER HANDLER
   // =============================
   const filterLogs = logs.filter((log) => {
-    // jika tidak ada waktu, skip kecuali filter = Semua atau jenis aksi
-    const rawWaktu = log.waktu;
-    const waktu =
-      rawWaktu === undefined || rawWaktu === null
-        ? null
-        : typeof rawWaktu === "number"
-        ? new Date(rawWaktu)
-        : new Date(String(rawWaktu));
-
+    const waktu = new Date(log.waktu);
     const now = new Date();
 
     if (filter === "Hari Ini") {
-      if (!waktu) return false;
       return (
         waktu.getDate() === now.getDate() &&
         waktu.getMonth() === now.getMonth() &&
@@ -80,24 +49,21 @@ export default function LogScreen() {
     }
 
     if (filter === "7 Hari Terakhir") {
-      if (!waktu) return false;
-      const diffDays = (now.getTime() - waktu.getTime()) / (1000 * 3600 * 24);
-      return diffDays <= 7 && diffDays >= 0;
+      const diff = (now - waktu) / (1000 * 3600 * 24);
+      return diff <= 7;
     }
 
     if (filter === "Bulan Ini") {
-      if (!waktu) return false;
       return (
         waktu.getMonth() === now.getMonth() &&
         waktu.getFullYear() === now.getFullYear()
       );
     }
 
-    const aksiLower = (log.aksi || "").toLowerCase();
-    if (filter === "Online") return aksiLower.includes("online");
-    if (filter === "Offline") return aksiLower.includes("offline");
-    if (filter === "Dibatalkan") return aksiLower.includes("batal");
-    if (filter === "Diundur") return aksiLower.includes("diundur");
+    if (filter === "Online") return log.aksi.toLowerCase().includes("online");
+    if (filter === "Offline") return log.aksi.toLowerCase().includes("offline");
+    if (filter === "Dibatalkan") return log.aksi.toLowerCase().includes("batal");
+    if (filter === "Diundur") return log.aksi.toLowerCase().includes("diundur");
 
     return true; // Semua
   });
@@ -121,7 +87,7 @@ export default function LogScreen() {
           <TouchableOpacity
             key={f}
             style={[styles.filterButton, filter === f && styles.activeFilter]}
-            onPress={() => setFilter(f as any)}
+            onPress={() => setFilter(f)}
           >
             <Text
               style={[
@@ -139,29 +105,29 @@ export default function LogScreen() {
       {filterLogs.length === 0 ? (
         <Text style={styles.empty}>Tidak ada log untuk filter ini.</Text>
       ) : (
-        filterLogs.map((item, idx) => {
-          const aksiText = item.aksi ?? "—";
-          const waktuText = item.waktu ? new Date(String(item.waktu)).toLocaleString() : "—";
-          const key = item.id !== undefined && item.id !== null ? String(item.id) : `idx-${idx}`;
-
-          // badge label: ambil kata pertama dari aksi, fallback '-'
-          const badgeLabel = aksiText.split(" ")[0]?.toUpperCase() || "-";
-
-          return (
-            <View key={key} style={styles.logRow}>
-              {/* BADGE */}
-              <View style={[styles.badge, { backgroundColor: getBadgeColor(aksiText) }]}>
-                <Text style={styles.badgeText}>{badgeLabel}</Text>
-              </View>
-
-              {/* TEXT */}
-              <View style={{ flex: 1 }}>
-                <Text style={styles.logAction}>{aksiText}</Text>
-                <Text style={styles.logTime}>{waktuText}</Text>
-              </View>
+        filterLogs.map((item) => (
+          <View key={item.id} style={styles.logRow}>
+            {/* BADGE */}
+            <View
+              style={[
+                styles.badge,
+                { backgroundColor: getBadgeColor(item.aksi) },
+              ]}
+            >
+              <Text style={styles.badgeText}>
+                {item.aksi.split(" ")[0].toUpperCase()}
+              </Text>
             </View>
-          );
-        })
+
+            {/* TEXT */}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.logAction}>{item.aksi}</Text>
+              <Text style={styles.logTime}>
+                {new Date(item.waktu).toLocaleString()}
+              </Text>
+            </View>
+          </View>
+        ))
       )}
     </ScrollView>
   );
@@ -175,7 +141,7 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    // gap is not widely supported in RN; use margin on items instead
+    gap: 8,
     marginBottom: 16,
   },
   filterButton: {
@@ -184,8 +150,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
   },
   activeFilter: {
     backgroundColor: "#2563eb",
@@ -199,7 +163,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
-    gap: 12, // RN web may support gap; native may not — it's OK, kept for web
+    gap: 12,
   },
   badge: {
     paddingVertical: 4,

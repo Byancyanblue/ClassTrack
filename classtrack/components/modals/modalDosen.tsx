@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet } from "react-native";
 
-const API_URL = "http://192.168.60.243:3000/api/dosen";
+const API_URL = "http://192.168.164.243:3000/api/dosen";
 
-interface ModalDosenProps {
-  close: () => void;
-  mode: "add" | "edit";
-  data?: any;
-  refresh: () => void;
-}
-
-export default function ModalDosen({ close, mode, data, refresh }: ModalDosenProps) {
+export default function ModalDosen({ close, mode, data, refresh }) {
   const [nama, setNama] = useState(data?.nama || "");
   const [email, setEmail] = useState(data?.email || "");
   const [NIP, setNIP] = useState(data?.NIP || "");
@@ -60,7 +53,6 @@ export default function ModalDosen({ close, mode, data, refresh }: ModalDosenPro
     </Modal>
   );
 }
-
 
 const styles = StyleSheet.create({
   overlay: {

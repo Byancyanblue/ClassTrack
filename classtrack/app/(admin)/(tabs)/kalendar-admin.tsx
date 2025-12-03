@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 
-const API_URL = "http://192.168.60.243:3000/api";
+const API_URL = "http://172.16.255.192:3000/api";
 
 interface KalenderItem {
   id: number;

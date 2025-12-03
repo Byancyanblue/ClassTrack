@@ -1,17 +1,9 @@
 import { useState } from "react";
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet } from "react-native";
 
-const API_URL = "http://192.168.60.243:3000/api/makul";
+const API_URL = "http://192.168.164.243:3000/api/makul";
 
-// ------- Tambah Type Props ------
-interface ModalMakulProps {
-  close: () => void;
-  mode: "add" | "edit";
-  data?: any;     // boleh diganti lebih spesifik
-  refresh: () => void;
-}
-
-export default function ModalMakul({ close, mode, data, refresh }: ModalMakulProps) {
+export default function ModalMakul({ close, mode, data, refresh }) {
   const [kode, setKode] = useState(data?.kode_mk || "");
   const [nama, setNama] = useState(data?.nama_mk || "");
   const [sks, setSks] = useState(String(data?.sks || "3"));
@@ -36,9 +28,7 @@ export default function ModalMakul({ close, mode, data, refresh }: ModalMakulPro
     <Modal transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.box}>
-          <Text style={styles.title}>
-            {mode === "add" ? "Tambah Mata Kuliah" : "Edit Mata Kuliah"}
-          </Text>
+          <Text style={styles.title}>{mode === "add" ? "Tambah Mata Kuliah" : "Edit Mata Kuliah"}</Text>
 
           <TextInput placeholder="Kode MK" value={kode} onChangeText={setKode} style={styles.input} />
           <TextInput placeholder="Nama MK" value={nama} onChangeText={setNama} style={styles.input} />
