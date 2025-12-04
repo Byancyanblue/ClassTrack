@@ -48,6 +48,7 @@ app.use("/api/log", logRoutes);
 // LOGIN
 app.use("/api", authRoutes);
 
+// MAHASISWA
 app.use("/api/mahasiswa", dashboard); 
 
 // ROUTES ADMIN

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const API_URL = "http://192.168.100.177:3030/api";
+const API_URL = "http://192.168.60.243:3000/api";
 const ID_MAHASISWA = 1;
 
 // Tipe data sesuai dengan respon backend baru

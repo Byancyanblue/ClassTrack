@@ -40,7 +40,7 @@ const JadwalAkademik = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // ✅ IP SERVER (Sesuaikan jika berubah)
-  const API_URL = 'http://192.168.1.22:3000/api'; 
+  const API_URL = 'http://192.168.60.243:3000/api'; 
 
   const fetchData = async () => {
     try {

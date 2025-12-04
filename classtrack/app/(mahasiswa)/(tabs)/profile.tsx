@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 // CONFIG
-const API_URL = "http://192.168.100.177:3030/api";
+const API_URL = "http://192.168.60.243:3000/api";
 const ID_MAHASISWA = 1; // ID Dummy
 
 interface MahasiswaData {

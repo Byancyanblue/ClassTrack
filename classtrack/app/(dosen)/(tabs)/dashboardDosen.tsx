@@ -5,7 +5,7 @@ import {
 import { useAuth } from "../../../store/useAuth";
 import { Ionicons } from '@expo/vector-icons';
 
-const API_URL = "http://192.168.1.22:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
 
 export default function DashboardDosen() {
   const user = useAuth((s) => s.user);

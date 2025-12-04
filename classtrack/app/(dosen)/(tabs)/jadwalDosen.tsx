@@ -40,7 +40,7 @@ const JadwalDosen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // IP Address Laptop
-  const API_URL = 'http://192.168.1.22:3000/api/dosen/jadwal-personal';
+  const API_URL = 'http://192.168.60.243:3000/api/dosen/jadwal-personal';
 
   const fetchData = async () => {
     if (!user?.username) return;
