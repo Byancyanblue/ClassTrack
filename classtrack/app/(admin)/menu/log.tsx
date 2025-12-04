@@ -7,10 +7,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
+
+// =============================
+// LOG TYPE
+// =============================
+interface LogItem {
+  id: number;
+  aksi: string;
+  waktu: string;
+}
 
 export default function LogScreen() {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<LogItem[]>([]);
   const [filter, setFilter] = useState("Semua");
 
   useEffect(() => {
@@ -25,18 +34,18 @@ export default function LogScreen() {
   // =============================
   const getBadgeColor = (aksi: string) => {
     const lower = aksi.toLowerCase();
-    if (lower.includes("online")) return "#2563eb"; // biru
-    if (lower.includes("offline")) return "#ea580c"; // oranye
-    if (lower.includes("diundur")) return "#7c3aed"; // ungu
-    if (lower.includes("batal")) return "#dc2626"; // merah
-    if (lower.includes("sesuai")) return "#16a34a"; // hijau
-    return "#475569"; // default abu
+    if (lower.includes("online")) return "#2563eb";
+    if (lower.includes("offline")) return "#ea580c";
+    if (lower.includes("diundur")) return "#7c3aed";
+    if (lower.includes("batal")) return "#dc2626";
+    if (lower.includes("sesuai")) return "#16a34a";
+    return "#475569";
   };
 
   // =============================
   // FILTER HANDLER
   // =============================
-  const filterLogs = logs.filter((log) => {
+  const filterLogs = logs.filter((log: LogItem) => {
     const waktu = new Date(log.waktu);
     const now = new Date();
 
@@ -49,7 +58,7 @@ export default function LogScreen() {
     }
 
     if (filter === "7 Hari Terakhir") {
-      const diff = (now - waktu) / (1000 * 3600 * 24);
+      const diff = (Number(now) - Number(waktu)) / (1000 * 3600 * 24);
       return diff <= 7;
     }
 
@@ -65,7 +74,7 @@ export default function LogScreen() {
     if (filter === "Dibatalkan") return log.aksi.toLowerCase().includes("batal");
     if (filter === "Diundur") return log.aksi.toLowerCase().includes("diundur");
 
-    return true; // Semua
+    return true;
   });
 
   return (
@@ -105,7 +114,7 @@ export default function LogScreen() {
       {filterLogs.length === 0 ? (
         <Text style={styles.empty}>Tidak ada log untuk filter ini.</Text>
       ) : (
-        filterLogs.map((item) => (
+        filterLogs.map((item: LogItem) => (
           <View key={item.id} style={styles.logRow}>
             {/* BADGE */}
             <View
@@ -137,7 +146,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f8fafc" },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
 
-  // FILTER BUTTONS
   filterRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -156,7 +164,6 @@ const styles = StyleSheet.create({
   },
   filterText: { color: "#2563eb", fontSize: 12 },
 
-  // LOG ROW
   logRow: {
     flexDirection: "row",
     alignItems: "center",

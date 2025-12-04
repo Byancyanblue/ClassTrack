@@ -7,10 +7,17 @@ import {
   FlatList,
 } from "react-native";
 
-const API_URL = "http://192.168.164.243:3000/api";
+const API_URL = "http://192.168.60.243:3000/api";
+
+
+interface UserItem {
+  id: number;
+  username: string;
+  role: string;
+}
 
 export default function UserScreen() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserItem[]>([]);
 
   const fetchUsers = () => {
     fetch(`${API_URL}/admin/menu/users`)

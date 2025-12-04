@@ -42,14 +42,17 @@ export default function KelolaDataScreen() {
     setModalVisible(true);
   };
 
-
-  const closeModal = () => setMode({ show: false, type: "", mode: "add", data: null });
-
+  // ✅ FIX: Reset modal state dengan benar
+  const closeModal = () => {
+    setModalVisible(false);
+    setModalType("");
+    setMode("add");
+    setSelectedData(null);
+  };
 
   // FETCH SEMUA DATA
-
   const fetchAll = async () => {
-    const fetcher = async (url) => {
+    const fetcher = async (url: string) => {
       const res = await fetch(url);
       return res.json();
     };
@@ -89,7 +92,6 @@ export default function KelolaDataScreen() {
       <View style={styles.headerRow}>
         <Text style={styles.cardTitle}>{title}</Text>
 
-
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => openModal(type, "add")}
@@ -123,49 +125,29 @@ export default function KelolaDataScreen() {
         { label: "Keahlian", key: "k_keahlian" },
       ])}
 
-      {renderPreview(
-        "Data Mata Kuliah",
-        makul,
-        "/kelola/makul-list",
-        "makul",
-        [
-          { label: "Kode MK", key: "kode_mk" },
-          { label: "Nama MK", key: "nama_mk" },
-          { label: "SKS", key: "sks" },
-        ]
-      )}
+      {renderPreview("Data Mata Kuliah", makul, "/kelola/makul-list", "makul", [
+        { label: "Kode MK", key: "kode_mk" },
+        { label: "Nama MK", key: "nama_mk" },
+        { label: "SKS", key: "sks" },
+      ])}
 
-      {renderPreview(
-        "Data Ruangan",
-        ruangan,
-        "/kelola/ruangan-list",
-        "ruangan",
-        [
-          { label: "Ruangan", key: "nama_ruangan" },
-          { label: "Kapasitas", key: "kapasitas" },
-        ]
-      )}
+      {renderPreview("Data Ruangan", ruangan, "/kelola/ruangan-list", "ruangan", [
+        { label: "Ruangan", key: "nama_ruangan" },
+        { label: "Kapasitas", key: "kapasitas" },
+      ])}
 
       {renderPreview("Data Sesi", sesi, "/kelola/sesi-list", "sesi", [
         { label: "Nama Sesi", key: "nama_sesi" },
         { label: "Jam Mulai", key: "jam_mulai" },
       ])}
 
-      {renderPreview(
-        "Data Jadwal",
-        jadwal,
-        "/kelola/jadwal-list",
-        "jadwal",
-        [
-          { label: "Mata Kuliah", key: "mataKuliah" },
-          { label: "Dosen", key: "dosen" },
-          { label: "Hari", key: "hari" },
-        ]
-      )}
+      {renderPreview("Data Jadwal", jadwal, "/kelola/jadwal-list", "jadwal", [
+        { label: "Mata Kuliah", key: "mataKuliah" },
+        { label: "Dosen", key: "dosen" },
+        { label: "Hari", key: "hari" },
+      ])}
 
-      {/* =======================
-          MODALS
-      ======================== */}
+      {/* ========== MODALS ========== */}
       {modalVisible && modalType === "dosen" && (
         <ModalDosen
           close={closeModal}
@@ -216,7 +198,7 @@ export default function KelolaDataScreen() {
 }
 
 // =========================================
-//  STYLES – UI BARU
+//  STYLES
 // =========================================
 
 const styles = StyleSheet.create({
